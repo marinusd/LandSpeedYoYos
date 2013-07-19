@@ -6,11 +6,88 @@
     android:paddingLeft="@dimen/activity_horizontal_margin"
     android:paddingRight="@dimen/activity_horizontal_margin"
     android:paddingTop="@dimen/activity_vertical_margin"
-    tools:context=".MainActivity" >
+    tools:context=".ReadoutActivity" >
 
     <TextView
+        android:id="@+id/rightHeightLabel"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="@string/hello_world" />
+        android:layout_alignBaseline="@+id/leftHeightLabel"
+        android:layout_alignBottom="@+id/leftHeightLabel"
+        android:layout_toRightOf="@+id/SpeedDisplay"
+        android:text="@string/right_height_label"
+        android:textAppearance="?android:attr/textAppearanceMedium" />
+
+    <Button
+        android:id="@+id/CalibrateNormalButton"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentBottom="true"
+        android:layout_centerHorizontal="true"
+        android:layout_marginBottom="18dp"
+        android:onClick="calibrateNormal"
+        android:text="@string/calibrate_normal_label" />
+
+    <Button
+        android:id="@+id/CalibrateMaxButton"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentTop="true"
+        android:layout_centerHorizontal="true"
+        android:layout_marginTop="27dp"
+        android:onClick="calibrateMax"
+        android:text="@string/calibrate_max_label" />
+
+    <TextView
+        android:id="@+id/SpeedDisplay"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_below="@+id/SpeedLabel"
+        android:layout_centerHorizontal="true"
+        android:text="@string/speed_display"
+        android:textAppearance="?android:attr/textAppearanceLarge"
+        android:textSize="60sp" />
+
+    <TextView
+        android:id="@+id/leftHeightLabel"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_above="@+id/leftHeighDisplay"
+        android:layout_marginBottom="14dp"
+        android:layout_toLeftOf="@+id/SpeedDisplay"
+        android:text="@string/left_height_label"
+        android:textAppearance="?android:attr/textAppearanceMedium" />
+
+    <TextView
+        android:id="@+id/rightHeightDisplay"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignBaseline="@+id/leftHeighDisplay"
+        android:layout_alignBottom="@+id/leftHeighDisplay"
+        android:layout_alignRight="@+id/rightHeightLabel"
+        android:text="@string/right_height_value"
+        android:textAppearance="?android:attr/textAppearanceLarge"
+        android:textSize="60sp" />
+
+    <TextView
+        android:id="@+id/SpeedLabel"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_below="@+id/CalibrateMaxButton"
+        android:layout_centerHorizontal="true"
+        android:layout_marginTop="14dp"
+        android:text="@string/speed_label"
+        android:textAppearance="?android:attr/textAppearanceLarge" />
+
+    <TextView
+        android:id="@+id/leftHeighDisplay"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_above="@+id/CalibrateNormalButton"
+        android:layout_alignLeft="@+id/leftHeightLabel"
+        android:layout_marginBottom="33dp"
+        android:text="@string/left_height_value"
+        android:textAppearance="?android:attr/textAppearanceLarge"
+        android:textSize="60sp" />
 
 </RelativeLayout>
