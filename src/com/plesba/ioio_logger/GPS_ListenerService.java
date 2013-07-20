@@ -8,6 +8,7 @@ import android.location.Location;
 import android.location.LocationListener;
 import android.location.LocationManager;
 import android.location.LocationProvider;
+import android.os.Binder;
 import android.os.Bundle;
 import android.os.IBinder;
 import android.os.SystemClock;
@@ -21,18 +22,27 @@ public class GPS_ListenerService extends Service {
 	private double lastLatitude;
 	private double lastLongitude;
 	private float  lastSpeed;
-
+    
 	// primitives are atomic, so we can just spit 'em out  (Right?)
 	public long   getTime() { return lastGPStime; }
 	public double getLat()  { return lastLatitude; }
 	public double getLong() { return lastLongitude; }
 	public float getSpeed() { return lastSpeed; }
 	
-	@Override
+    // setup this service to allow binding for access to  public methods above.
+	// http://developer.android.com/guide/components/bound-services.html
+    private final IBinder mBinder = new GPSBinder();
+    public class GPSBinder extends Binder {
+    	GPS_ListenerService getService() {
+            return GPS_ListenerService.this;
+        }
+    }
+    @Override
 	public IBinder onBind(Intent intent) {
-		return null;
+		return mBinder;
 	}
 
+	// the usual 'Service' methods below
 	@Override
 	public void onCreate() {
 		super.onCreate();
