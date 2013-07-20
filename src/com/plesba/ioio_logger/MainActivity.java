@@ -1,15 +1,16 @@
 package com.plesba.ioio_logger;
+import ioio.lib.api.AnalogInput;
+import ioio.lib.api.exception.ConnectionLostException;
+import ioio.lib.util.BaseIOIOLooper;
+import ioio.lib.util.IOIOLooper;
+import ioio.lib.util.android.IOIOActivity;
+import android.content.Intent;
+import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.view.Menu;
 import android.view.View;
 import android.widget.Button;
 import android.widget.TextView;
-import android.content.SharedPreferences;
-import ioio.lib.util.IOIOLooper;
-import ioio.lib.util.BaseIOIOLooper;
-import ioio.lib.util.android.IOIOActivity;
-import ioio.lib.api.AnalogInput;
-import ioio.lib.api.exception.ConnectionLostException;
 
 public class MainActivity extends IOIOActivity {
 	private SharedPreferences settings;
@@ -31,6 +32,7 @@ public class MainActivity extends IOIOActivity {
 		write = new FileWriter(this);
 		initializeSettings();
 		initializeGui();
+        startService(new Intent(GPS_ListenerService.class.getName()));
 	}
 
 	class Looper extends BaseIOIOLooper {
@@ -150,9 +152,10 @@ public class MainActivity extends IOIOActivity {
 
 	@Override
 	protected void onStop() {
-		super.onStop();
 		// The activity is no longer visible (it is now "stopped")
-		// close log file
+		super.onStop();
+        stopService(new Intent(GPS_ListenerService.class.getName()));
+		// close log files
 		write.syslog("MainActivity stopped");
 		write.finalize();
 	}
