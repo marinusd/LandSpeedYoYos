@@ -36,8 +36,12 @@ public class MainActivity extends IOIOActivity {
 		initializeSettings();
 		startService(new Intent(this, GPS_ListenerService.class));
 		PowerManager pm = (PowerManager) getSystemService(Context.POWER_SERVICE);
+		// what burns more power, the GPS or a dimmed screen?  If the screen, perhaps that 
+		//  should be PARTIAL_WAKE_LOCK... but be aware that PARTIAL ignores everything
+		//   including the power button. :)
 		wakeLock = pm.newWakeLock(PowerManager.SCREEN_DIM_WAKE_LOCK, "android-ioio");
-		initializeGui();  // also sets wakelock
+		initializeGui();  // this method actually acquires the wakelock
+		write.data("TIME,LH,RH,LAT,LONG,SPEED");
 	}
 
 	class Looper extends BaseIOIOLooper {
