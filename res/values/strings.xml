@@ -13,6 +13,8 @@
     <string name="CalibrateName">Calibrate</string>
     <string name="calibrate_max_label">Calibrate Max Extension</string>
     <string name="calibrate_normal_label">Calibrate Normal Extension</string>
+    <string name="cal_norm_con_label">Cal. Norm</string>
+    <string name="cal_max_con_label">Cal. Max</string>
 
 
 

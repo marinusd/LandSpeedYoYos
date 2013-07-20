@@ -25,8 +25,10 @@
         android:layout_alignParentBottom="true"
         android:layout_centerHorizontal="true"
         android:layout_marginBottom="18dp"
-        android:onClick="calibrateNormal"
-        android:text="@string/calibrate_normal_label" />
+        android:clickable="false"
+        android:focusable="false"
+        android:text="@string/calibrate_normal_label"
+        android:visibility="invisible" />
 
     <Button
         android:id="@+id/CalibrateMaxButton"
@@ -35,8 +37,10 @@
         android:layout_alignParentTop="true"
         android:layout_centerHorizontal="true"
         android:layout_marginTop="27dp"
-        android:onClick="calibrateMax"
-        android:text="@string/calibrate_max_label" />
+        android:clickable="false"
+        android:focusable="false"
+        android:text="@string/calibrate_max_label"
+        android:visibility="invisible" />
 
     <TextView
         android:id="@+id/SpeedDisplay"
