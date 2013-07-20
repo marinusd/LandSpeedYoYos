@@ -5,7 +5,6 @@ import java.io.FileOutputStream;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import android.annotation.SuppressLint;
-import android.content.Context;
 import android.os.Environment;
 import android.util.Log;
 
@@ -23,9 +22,18 @@ public class FileWriter {
 	private String dataTmpStr = "";
 	private boolean storageAvailable, storageWritable;
 	private SimpleDateFormat filenameFormat, logFormat;
-
+	// this class is intended to be a Singleton
+	private static FileWriter INSTANCE;
+ 
+	public static FileWriter getInstance() {
+		if (INSTANCE == null) {
+			INSTANCE = new FileWriter();
+		}
+		return INSTANCE;
+	}
+		
 	@SuppressLint("SimpleDateFormat")
-	public FileWriter(Context con) {
+	private FileWriter() {
 		// see if we can write to the "external storage" -- if
 		// it's currently mounted to a computer, we probably can't.
 		try {

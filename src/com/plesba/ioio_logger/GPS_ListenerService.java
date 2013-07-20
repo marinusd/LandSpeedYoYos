@@ -7,13 +7,14 @@ import android.location.GpsStatus;
 import android.location.Location;
 import android.location.LocationListener;
 import android.location.LocationManager;
+import android.location.LocationProvider;
 import android.os.Bundle;
 import android.os.IBinder;
 import android.os.SystemClock;
-import android.util.Log;
 
 public class GPS_ListenerService extends Service {
 	private static final String TAG = "GPS_ListenerService";
+	private FileWriter write;
 	private LocationManager locationManager;
 	private LocationListener gpsLocationListener;
 	private long   lastGPStime;
@@ -35,6 +36,7 @@ public class GPS_ListenerService extends Service {
 	@Override
 	public void onCreate() {
 		super.onCreate();
+		write = FileWriter.getInstance();
 		// instantiate the inner class
 		gpsLocationListener = new GPSLocationListener();
 		// get the system manager
@@ -45,7 +47,7 @@ public class GPS_ListenerService extends Service {
 				333L, // minimum time interval between location updates, in milliseconds
 				20,  //  minimum distance between location updates, in meters
 				gpsLocationListener);
-		Log.i(TAG, "GPS updates requested.");
+		write.syslog(TAG + " GPS updates requested.");
 	}
 
 	@Override
@@ -64,13 +66,13 @@ public class GPS_ListenerService extends Service {
 	                if (mLastLocation != null)
 	                    isGPSFix = (SystemClock.elapsedRealtime() - lastGPStime) < 3000;
 	                if (isGPSFix) { // A fix has been acquired.
-	                	Log.i(TAG, "GPS has a fix.");
+	                	write.syslog(TAG + " GPS has a fix.");
 	                } else { // The fix has been lost.
-	                	Log.w(TAG, "GPS DOES NOT have a fix.");
+	                	write.syslog(TAG + " GPS DOES NOT have a fix.");
 	                }
 	                break;
 	            case GpsStatus.GPS_EVENT_FIRST_FIX:
-                	Log.i(TAG, "GPS got first fix.");
+                	write.syslog(TAG + " GPS got first fix.");
 	                isGPSFix = true;
 	                break;
 	        }
@@ -83,22 +85,34 @@ public class GPS_ListenerService extends Service {
 			lastLatitude  = location.getLatitude();
 			lastLongitude = location.getLongitude();
 			lastSpeed     = location.getSpeed();
-			Log.i(TAG, "GPS update received.");
+			//Log.i(TAG, "GPS update received.");
 		}
 
 		@Override
 		public void onStatusChanged(String provider, int status, Bundle extras) {
-			Log.i(TAG, "GPS provider status changed to " + status);
+			String statusDescription = "unknown";
+			switch (status) {
+			case LocationProvider.OUT_OF_SERVICE:
+				statusDescription = "OUT_OF_SERVICE";	
+				break;
+			case LocationProvider.AVAILABLE:
+				statusDescription = "AVAILABLE";	
+				break;
+			case LocationProvider.TEMPORARILY_UNAVAILABLE:
+				statusDescription = "TEMPORARILY_UNAVAILABLE";	
+				break;
+			}
+			write.syslog(TAG + " GPS provider status changed to " + statusDescription);
 		}
 
 		@Override
 		public void onProviderEnabled(String provider) {
-			Log.i(TAG, "GPS provider enabled.");
+			write.syslog(TAG + " GPS provider enabled.");
 		}
 
 		@Override
 		public void onProviderDisabled(String provider) {
-			Log.w(TAG, "GPS provider disabled?");
+			write.syslog(TAG + " GPS provider disabled?");
 		}
 
 	}

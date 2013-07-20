@@ -4,9 +4,11 @@ import ioio.lib.api.exception.ConnectionLostException;
 import ioio.lib.util.BaseIOIOLooper;
 import ioio.lib.util.IOIOLooper;
 import ioio.lib.util.android.IOIOActivity;
+import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Bundle;
+import android.os.PowerManager;
 import android.view.Menu;
 import android.view.View;
 import android.widget.Button;
@@ -24,15 +26,18 @@ public class MainActivity extends IOIOActivity {
 	private float maxHeightLeft;
 	private float maxHeightRight;
 	private FileWriter write;
+	private PowerManager.WakeLock wakeLock;
 
 	@Override
 	public void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
+		write = FileWriter.getInstance();
 		settings = getPreferences(MODE_PRIVATE);
-		write = new FileWriter(this);
 		initializeSettings();
-		initializeGui();
-        startService(new Intent(GPS_ListenerService.class.getName()));
+		startService(new Intent(this, GPS_ListenerService.class));
+		PowerManager pm = (PowerManager) getSystemService(Context.POWER_SERVICE);
+		wakeLock = pm.newWakeLock(PowerManager.SCREEN_DIM_WAKE_LOCK, "android-ioio");
+		initializeGui();  // also sets wakelock
 	}
 
 	class Looper extends BaseIOIOLooper {
@@ -96,7 +101,9 @@ public class MainActivity extends IOIOActivity {
 		speedValue = (TextView) findViewById(R.id.SpeedDisplay);
 		normalCalButton = (Button) findViewById(R.id.CalibrateNormalButton);
 		maxCalButton = (Button) findViewById(R.id.CalibrateMaxButton);
+		wakeLock.acquire();
 		enableUi(true);
+		write.syslog("gui initialized");
 	}
 
 	private void enableUi(final boolean enable) {
@@ -154,10 +161,13 @@ public class MainActivity extends IOIOActivity {
 	protected void onStop() {
 		// The activity is no longer visible (it is now "stopped")
 		super.onStop();
-        stopService(new Intent(GPS_ListenerService.class.getName()));
-		// close log files
+		// stop GPS service
+		stopService(new Intent(this, GPS_ListenerService.class));
+		// close log files... but write this first.
 		write.syslog("MainActivity stopped");
 		write.finalize();
+		// release wake lock
+		wakeLock.release();
 	}
 
 	@Override
