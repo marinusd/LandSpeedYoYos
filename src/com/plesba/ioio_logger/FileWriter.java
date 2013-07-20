@@ -70,7 +70,7 @@ public class FileWriter {
 
 			// create the files
 			syslogFile = new File(dir, "syslog" + fileTS + ".txt");
-			dataFile = new File(dir, "Data" + fileTS + ".csv");
+			dataFile = new File(dir, "Data" + fileTS + ".txt");
 		} catch (Exception e) {
 			Log.i(TAG, "SHIT: " + e.getMessage());
 		}

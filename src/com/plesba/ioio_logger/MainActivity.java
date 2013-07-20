@@ -33,6 +33,7 @@ public class MainActivity extends IOIOActivity {
 	public void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		write = FileWriter.getInstance();
+		write.data("TIME,LH,RH,LAT,LONG,SPEED");
 		settings = getPreferences(MODE_PRIVATE);
 		initializeSettings();
 		startService(new Intent(this, GPS_ListenerService.class));
@@ -42,7 +43,7 @@ public class MainActivity extends IOIOActivity {
 		//   including the power button. :)
 		wakeLock = pm.newWakeLock(PowerManager.SCREEN_DIM_WAKE_LOCK, "android-ioio");
 		initializeGui();  // this method actually acquires the wakelock
-		write.data("TIME,LH,RH,LAT,LONG,SPEED");
+
 	}
 
 	class Looper extends BaseIOIOLooper {
