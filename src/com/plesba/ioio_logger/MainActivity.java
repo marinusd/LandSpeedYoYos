@@ -1,13 +1,18 @@
 package com.plesba.ioio_logger;
+
+import com.plesba.ioio_logger.GPS_ListenerService.GPSBinder;
 import ioio.lib.api.AnalogInput;
 import ioio.lib.api.exception.ConnectionLostException;
 import ioio.lib.util.BaseIOIOLooper;
 import ioio.lib.util.IOIOLooper;
 import ioio.lib.util.android.IOIOActivity;
+import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
+import android.content.ServiceConnection;
 import android.content.SharedPreferences;
 import android.os.Bundle;
+import android.os.IBinder;
 import android.os.PowerManager;
 import android.view.Menu;
 import android.view.View;
@@ -27,6 +32,9 @@ public class MainActivity extends IOIOActivity {
 	private float maxHeightRight;
 	private FileWriter write;
 	private PowerManager.WakeLock wakeLock;
+    private ServiceConnection gpsSvcConn;
+	private GPS_ListenerService gpsService;
+	private boolean isGPSserviceBound;
 
 	@Override
 	public void onCreate(Bundle savedInstanceState) {
@@ -34,16 +42,40 @@ public class MainActivity extends IOIOActivity {
 		write = FileWriter.getInstance();
 		settings = getPreferences(MODE_PRIVATE);
 		initializeSettings();
-		startService(new Intent(this, GPS_ListenerService.class));
+		startGPSService();
 		PowerManager pm = (PowerManager) getSystemService(Context.POWER_SERVICE);
 		// what burns more power, the GPS or a dimmed screen?  If the screen, perhaps that 
 		//  should be PARTIAL_WAKE_LOCK... but be aware that PARTIAL ignores everything
 		//   including the power button. :)
 		wakeLock = pm.newWakeLock(PowerManager.SCREEN_DIM_WAKE_LOCK, "android-ioio");
 		initializeGui();  // this method actually acquires the wakelock
-		write.data("TIME,LH,RH,LAT,LONG,SPEED");
+		// start out the Data file
+		write.data("SYSTIME,LH,RH,GPSTIME,LAT,LONG,SPEED");
 	}
 
+	// start of stuff to bind to GPS service so we can get values
+	private void startGPSService() {
+		startService(new Intent(this, GPS_ListenerService.class));
+		gpsSvcConn = new ServiceConnection() {
+			@Override
+			public void onServiceConnected(ComponentName name, IBinder binder) {
+				GPSBinder gpsBinder = (GPSBinder) binder;
+				gpsService = gpsBinder.getService();
+				isGPSserviceBound = true;
+				write.syslog("GPS service bound");
+			}
+			@Override
+			public void onServiceDisconnected(ComponentName name) {
+				isGPSserviceBound = false;
+				write.syslog("GPS service came unbound?");
+			}
+		};
+		Intent intent = new Intent(this, GPS_ListenerService.class);
+		bindService(intent, gpsSvcConn, Context.BIND_AUTO_CREATE);
+		write.syslog("Started to bind to GPS service");
+	}
+	// end of stuff to bind to GPS service 	
+	
 	class Looper extends BaseIOIOLooper {
 		private AnalogInput leftInput;
 		private AnalogInput rightInput;
@@ -71,11 +103,23 @@ public class MainActivity extends IOIOActivity {
 					.substring(2, 4);
 			final String rightReading = Float.toString(rightInput.read())
 					.substring(2, 4);
-			write.data(System.currentTimeMillis() + "," + leftReading + ","
-					+ rightReading);
+			// the GPS service needs to be bound before these will work...
+			if (isGPSserviceBound) {
+				final String gpsTime = Long.toString(gpsService.getTime());
+				final String latitude = Double.toString(gpsService.getLat());
+				final String longitude = Double.toString(gpsService.getLong());
+				final String speed = Float.toString(gpsService.getSpeed());
+				write.data(System.currentTimeMillis() + "," + leftReading + ","
+						+ rightReading + "," + gpsTime + "," + latitude + ","
+						+ longitude + "," + speed);
+				setDisplayText(speed, speedValue);
+				// don't have GPS data, still write something
+			} else {
+				write.data(System.currentTimeMillis() + "," + leftReading + ","
+						+ rightReading + ",n/a,n/a,n/a,n/a");
+			}
 			setDisplayText(leftReading, leftHeightValue);
 			setDisplayText(rightReading, rightHeightValue);
-			setDisplayText("200", speedValue);
 			Thread.sleep(300);
 		}
 
@@ -85,6 +129,7 @@ public class MainActivity extends IOIOActivity {
 		}
 	}
 
+	
 	@Override
 	protected IOIOLooper createIOIOLooper() {
 		return new Looper();
@@ -166,6 +211,7 @@ public class MainActivity extends IOIOActivity {
 		// The activity is no longer visible (it is now "stopped")
 		super.onStop();
 		// stop GPS service
+		unbindService(gpsSvcConn);
 		stopService(new Intent(this, GPS_ListenerService.class));
 		// close log files... but write this first.
 		write.syslog("MainActivity stopped");
@@ -180,5 +226,7 @@ public class MainActivity extends IOIOActivity {
 		getMenuInflater().inflate(R.menu.main, menu);
 		return true;
 	}
+
+
 
 }
