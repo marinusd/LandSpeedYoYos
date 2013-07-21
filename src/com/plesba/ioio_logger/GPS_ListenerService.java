@@ -23,11 +23,12 @@ public class GPS_ListenerService extends Service {
 	private double lastLongitude;
 	private float  lastSpeed;
     
-	// primitives are atomic, so we can just spit 'em out  (Right?)
 	public long   getTime() { return lastGPStime; }
-	public double getLat()  { return lastLatitude; }
-	public double getLong() { return lastLongitude; }
-	public float getSpeed() { return lastSpeed; }
+	public String getLat()  { 
+		return Double.toString(lastLatitude).substring(0,9); }     // latitude has max 2 digits before
+	public String getLong() { 
+		return Double.toString(lastLongitude).substring(0, 10); }  // longitude has up to 3 digits
+	public String getSpeed(){ return Float.toString(lastSpeed); }
 	
     // setup this service to allow binding for access to  public methods above.
 	// http://developer.android.com/guide/components/bound-services.html

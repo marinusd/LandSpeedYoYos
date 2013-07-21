@@ -108,9 +108,9 @@ public class MainActivity extends IOIOActivity {
 			// the GPS service needs to be bound before these will work...
 			if (isGPSserviceBound) {
 				final String gpsTime = Long.toString(gpsService.getTime());
-				final String latitude = Double.toString(gpsService.getLat());
-				final String longitude = Double.toString(gpsService.getLong());
-				final String speed = Float.toString(gpsService.getSpeed());
+				final String latitude =  gpsService.getLat();
+				final String longitude = gpsService.getLong();
+				final String speed =     gpsService.getSpeed();
 				write.data(System.currentTimeMillis() + "," + leftReading + ","
 						+ rightReading + "," + gpsTime + "," + latitude + ","
 						+ longitude + "," + speed);
@@ -143,6 +143,8 @@ public class MainActivity extends IOIOActivity {
 		normalHeightRight = settings.getFloat("RH_NORMAL", 99f);
 		maxHeightRight = settings.getFloat("RH_MAX", 99f);
 		write.syslog("read settings from preferences");
+		write.syslog("LH NORM: " + normalHeightLeft + " LH MAX: " + maxHeightLeft +
+					 "RH NORM: " + normalHeightRight +" RH MAX: " + maxHeightRight);	
 	}
 
 	private void initializeGui() {
