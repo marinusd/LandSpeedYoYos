@@ -121,8 +121,14 @@ public class MainActivity extends IOIOActivity {
 			 *  So we subtract the readings from 1.0 to reverse the relationship. 
 			 */
 			updateTime = clockFormat.format(new Date());
-			leftReading = Float.toString(1.0f-leftInput.read()).substring(2,4);
-			rightReading = Float.toString(1.0f-rightInput.read()).substring(2,4);
+			// leftSide sensor
+			String tStr = Float.toString(1.0f-leftInput.read());
+			if (tStr.length() < 4) { leftReading = tStr; }   // don't ask for indexOutOfBounds...
+			else { leftReading = tStr.substring(2,4); }
+			// now right side sensor
+			tStr = Float.toString(1.0f-rightInput.read());
+			if (tStr.length() < 4) { rightReading = tStr; }
+			else { rightReading = tStr.substring(2,4); }
 			// the GPS service needs to be bound before these will work...
 			if (isGPSserviceBound) {
 				gpsTime = gpsService.getTime();

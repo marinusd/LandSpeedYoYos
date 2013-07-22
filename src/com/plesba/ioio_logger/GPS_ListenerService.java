@@ -32,9 +32,13 @@ public class GPS_ListenerService extends Service {
 	public String getTime() { 
 		return timeFormat.format(new Date(lastGPStime)); }
 	public String getLat()  { 
-		return Double.toString(lastLatitude).substring(0,9); }     // latitude has max 2 digits before
+		String lValue = Double.toString(lastLatitude);
+		if (lValue.length() < 9) return lValue;
+		return lValue.substring(0,9); }     // latitude has max 2 digits before
 	public String getLong() { 
-		return Double.toString(lastLongitude).substring(0, 10); }  // longitude has up to 3 digits
+		String lValue = Double.toString(lastLongitude);
+		if (lValue.length() < 10) return lValue;
+		return lValue.substring(0, 10); }  // longitude has up to 3 digits
 	public String getSpeed(){ 
 		return Float.toString(lastSpeed); }
 	
