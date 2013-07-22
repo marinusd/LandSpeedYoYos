@@ -7,6 +7,7 @@ import android.annotation.SuppressLint;
 import android.app.Service;
 import android.content.Context;
 import android.content.Intent;
+import android.location.Criteria;
 import android.location.GpsStatus;
 import android.location.Location;
 import android.location.LocationListener;
@@ -26,21 +27,32 @@ public class GPS_ListenerService extends Service {
 	private double lastLatitude;
 	private double lastLongitude;
 	private float  lastSpeed;
+	private final float metersSec_in_MPH = 2.23694f;
     @SuppressLint("SimpleDateFormat")
 	private SimpleDateFormat timeFormat = new SimpleDateFormat("HH:mm:ss.SSS");
     
+    // other modules will call these public methonds
 	public String getTime() { 
 		return timeFormat.format(new Date(lastGPStime)); }
+	//  latitude ranges from 0.0 to 90.0  
+	//   In the US, latitude is always double-digits:  44.xxyyzz 
+	//   We'll keep six digits after the decimal point
 	public String getLat()  { 
 		String lValue = Double.toString(lastLatitude);
 		if (lValue.length() < 9) return lValue;
 		return lValue.substring(0,9); }     // latitude has max 2 digits before
+	// in the US, Longitude is always three digits:   123.xxyyzz
+	//  We'll keep six digits after the decimal point (ITIS)
 	public String getLong() { 
 		String lValue = Double.toString(lastLongitude);
 		if (lValue.length() < 10) return lValue;
 		return lValue.substring(0, 10); }  // longitude has up to 3 digits
+	// speed is reported in meters/second
+	// speed needs three digits, and maybe three more past the decimal point:   145.608
 	public String getSpeed(){ 
-		return Float.toString(lastSpeed); }
+		String lValue = Float.toString(lastSpeed*metersSec_in_MPH); 
+		if (lValue.length() < 7 ) { return lValue; }
+		else return lValue.substring(0, 7); }
 	
     // setup this service to allow binding for access to  public methods above.
 	// http://developer.android.com/guide/components/bound-services.html
@@ -64,11 +76,15 @@ public class GPS_ListenerService extends Service {
 		gpsLocationListener = new GPSLocationListener();
 		// get the system manager
 		locationManager = (LocationManager) getSystemService(Context.LOCATION_SERVICE);
+		//  and demand Speed values
+		Criteria criteria = new Criteria();
+        criteria.setSpeedRequired(true);
+        criteria.setSpeedAccuracy(Criteria.ACCURACY_FINE);
 		// register the listener
 		locationManager.requestLocationUpdates(
-				LocationManager.GPS_PROVIDER,
-				333L, // minimum time interval between location updates, in milliseconds
-				20,  //  minimum distance between location updates, in meters
+				locationManager.getBestProvider(criteria, false),
+				100, // minimum time interval between location updates, in milliseconds
+				3,  //  minimum distance between location updates, in meters
 				gpsLocationListener);
 		write.syslog(TAG + " GPS updates requested.");
 	}
@@ -126,6 +142,7 @@ public class GPS_ListenerService extends Service {
 				break;
 			}
 			write.syslog(TAG + " GPS provider status changed to " + statusDescription);
+			write.syslog(TAG + " Last speed was: " + getSpeed());
 		}
 
 		@Override

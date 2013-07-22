@@ -58,7 +58,7 @@
         android:layout_alignTop="@+id/CalibrateMaxButton"
         android:layout_centerHorizontal="true"
         android:text="12:00:00"
-        android:textAppearance="?android:attr/textAppearanceSmall" />
+        android:textAppearance="?android:attr/textAppearanceMedium" />
 
     <TextView
         android:id="@+id/rightHeightLabel"
