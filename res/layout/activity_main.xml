@@ -8,16 +8,6 @@
     android:paddingTop="@dimen/activity_vertical_margin"
     tools:context=".ReadoutActivity" >
 
-    <TextView
-        android:id="@+id/rightHeightLabel"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_alignBaseline="@+id/leftHeightLabel"
-        android:layout_alignBottom="@+id/leftHeightLabel"
-        android:layout_toRightOf="@+id/SpeedDisplay"
-        android:text="@string/right_height_label"
-        android:textAppearance="?android:attr/textAppearanceMedium" />
-
     <Button
         android:id="@+id/CalibrateNormalButton"
         android:layout_width="wrap_content"
@@ -30,18 +20,6 @@
         android:text="@string/calibrate_normal_label"
         android:visibility="invisible" />
 
-    <Button
-        android:id="@+id/CalibrateMaxButton"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_alignParentTop="true"
-        android:layout_centerHorizontal="true"
-        android:layout_marginTop="27dp"
-        android:clickable="false"
-        android:focusable="false"
-        android:text="@string/calibrate_max_label"
-        android:visibility="invisible" />
-
     <TextView
         android:id="@+id/SpeedDisplay"
         android:layout_width="wrap_content"
@@ -52,26 +30,16 @@
         android:textAppearance="?android:attr/textAppearanceLarge"
         android:textSize="60sp" />
 
-    <TextView
-        android:id="@+id/leftHeightLabel"
+    <Button
+        android:id="@+id/CalibrateMaxButton"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_above="@+id/leftHeighDisplay"
-        android:layout_marginBottom="14dp"
-        android:layout_toLeftOf="@+id/SpeedDisplay"
-        android:text="@string/left_height_label"
-        android:textAppearance="?android:attr/textAppearanceMedium" />
-
-    <TextView
-        android:id="@+id/rightHeightDisplay"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_alignBaseline="@+id/leftHeighDisplay"
-        android:layout_alignBottom="@+id/leftHeighDisplay"
-        android:layout_alignRight="@+id/rightHeightLabel"
-        android:text="@string/right_height_value"
-        android:textAppearance="?android:attr/textAppearanceLarge"
-        android:textSize="60sp" />
+        android:layout_alignParentTop="true"
+        android:layout_centerHorizontal="true"
+        android:clickable="false"
+        android:focusable="false"
+        android:text="@string/calibrate_max_label"
+        android:visibility="invisible" />
 
     <TextView
         android:id="@+id/SpeedLabel"
@@ -79,18 +47,58 @@
         android:layout_height="wrap_content"
         android:layout_below="@+id/CalibrateMaxButton"
         android:layout_centerHorizontal="true"
-        android:layout_marginTop="14dp"
+        android:layout_marginTop="50dp"
         android:text="@string/speed_label"
         android:textAppearance="?android:attr/textAppearanceLarge" />
+
+    <TextView
+        android:id="@+id/clockView"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignTop="@+id/CalibrateMaxButton"
+        android:layout_centerHorizontal="true"
+        android:text="12:00:00"
+        android:textAppearance="?android:attr/textAppearanceSmall" />
+
+    <TextView
+        android:id="@+id/rightHeightLabel"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignBaseline="@+id/leftHeightLabel"
+        android:layout_alignBottom="@+id/leftHeightLabel"
+        android:layout_alignRight="@+id/CalibrateMaxButton"
+        android:text="@string/right_height_label"
+        android:textAppearance="?android:attr/textAppearanceMedium" />
+
+    <TextView
+        android:id="@+id/leftHeightLabel"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_above="@+id/leftHeighDisplay"
+        android:layout_alignLeft="@+id/CalibrateMaxButton"
+        android:layout_marginBottom="14dp"
+        android:text="@string/left_height_label"
+        android:textAppearance="?android:attr/textAppearanceMedium" />
 
     <TextView
         android:id="@+id/leftHeighDisplay"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_above="@+id/CalibrateNormalButton"
-        android:layout_alignLeft="@+id/leftHeightLabel"
-        android:layout_marginBottom="33dp"
+        android:layout_alignRight="@+id/leftHeightLabel"
+        android:layout_marginBottom="34dp"
         android:text="@string/left_height_value"
+        android:textAppearance="?android:attr/textAppearanceLarge"
+        android:textSize="60sp" />
+
+    <TextView
+        android:id="@+id/rightHeightDisplay"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignBaseline="@+id/leftHeighDisplay"
+        android:layout_alignBottom="@+id/leftHeighDisplay"
+        android:layout_alignLeft="@+id/rightHeightLabel"
+        android:text="@string/right_height_value"
         android:textAppearance="?android:attr/textAppearanceLarge"
         android:textSize="60sp" />
 

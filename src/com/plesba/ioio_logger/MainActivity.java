@@ -5,6 +5,11 @@ import ioio.lib.api.exception.ConnectionLostException;
 import ioio.lib.util.BaseIOIOLooper;
 import ioio.lib.util.IOIOLooper;
 import ioio.lib.util.android.IOIOActivity;
+
+import java.text.SimpleDateFormat;
+import java.util.Date;
+
+import android.annotation.SuppressLint;
 import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
@@ -23,18 +28,15 @@ import com.plesba.ioio_logger.GPS_ListenerService.GPSBinder;
 
 public class MainActivity extends IOIOActivity {
 	private SharedPreferences settings;
-	private TextView leftHeightValue;
-	private TextView rightHeightValue;
-	private TextView speedValue;
+	private TextView clockView;
+	private TextView leftHeightView;
+	private TextView rightHeightView;
+	private TextView speedView;
 	private Button maxCalButton;
 	private Button normalCalButton;
-	private float normalHeightLeft;
-	private float normalHeightRight;
-	private float maxHeightLeft;
-	private float maxHeightRight;
 	private FileWriter write;
 	private PowerManager.WakeLock wakeLock;
-    private ServiceConnection gpsSvcConn;
+	private ServiceConnection gpsSvcConn;
 	private GPS_ListenerService gpsService;
 	private boolean isGPSserviceBound;
 
@@ -46,11 +48,14 @@ public class MainActivity extends IOIOActivity {
 		initializeSettings();
 		startGPSService();
 		PowerManager pm = (PowerManager) getSystemService(Context.POWER_SERVICE);
-		// what burns more power, the GPS or a dimmed screen?  If the screen, perhaps that 
-		//  should be PARTIAL_WAKE_LOCK... but be aware that PARTIAL ignores everything
-		//   including the power button. :)
-		wakeLock = pm.newWakeLock(PowerManager.SCREEN_DIM_WAKE_LOCK, "android-ioio");
-		initializeGui();  // this method actually acquires the wakelock
+		// what burns more power, the GPS or a dimmed screen? If the screen,
+		// perhaps that
+		// should be PARTIAL_WAKE_LOCK... but be aware that PARTIAL ignores
+		// everything
+		// including the power button. :)
+		wakeLock = pm.newWakeLock(PowerManager.SCREEN_DIM_WAKE_LOCK,
+				"android-ioio");
+		initializeGui(); // this method actually acquires the wakelock
 		// start out the Data file
 		write.data("SYSTIME,LH,RH,GPSTIME,LAT,LONG,SPEED");
 	}
@@ -66,6 +71,7 @@ public class MainActivity extends IOIOActivity {
 				isGPSserviceBound = true;
 				write.syslog("GPS service bound");
 			}
+
 			@Override
 			public void onServiceDisconnected(ComponentName name) {
 				isGPSserviceBound = false;
@@ -76,11 +82,21 @@ public class MainActivity extends IOIOActivity {
 		bindService(intent, gpsSvcConn, Context.BIND_AUTO_CREATE);
 		write.syslog("Started to bind to GPS service");
 	}
-	// end of stuff to bind to GPS service 	
-	
+
+	// end of stuff to bind to GPS service
+	private String normalHeightLeft = "";	private String normalHeightRight ="";
+	private String maxHeightLeft = "";		private String maxHeightRight ="";
+    private String lastLeft = ""; 			private String lastRight = "";
 	class Looper extends BaseIOIOLooper {
-		private AnalogInput leftInput;
-		private AnalogInput rightInput;
+		private AnalogInput leftInput;		private AnalogInput rightInput;
+		private String gpsTime = "";		private String lastGPStime = "";
+		private String latitude = "";		private String lastLat = "";
+		private String longitude = "";		private String lastLong = "";
+		private String speed = "";			private String lastSpeed = "";
+		private String leftReading = "";	private String rightReading = "";
+		private String updateTime = "12:00:00";
+		@SuppressLint("SimpleDateFormat")
+		private SimpleDateFormat clockFormat = new SimpleDateFormat("HH:mm:ss");
 
 		@Override
 		public void setup() throws ConnectionLostException {
@@ -99,59 +115,75 @@ public class MainActivity extends IOIOActivity {
 			 * sensors we have will never show 1.0, so 0.99xxx is the max and we
 			 * only need two digits of resolution So trim off the leading '0.'
 			 * of the string, and throw away digits past two example:
-			 * 0.234529684f => 23 (substring(2,4)
+			 * 0.234529684f => 23 (substring(2,4)   
+			 * AND! the ride height sensor readings go DOWN as the accordian units
+			 * are extended (and the readings go UP as the units are compressed.
+			 *  So we subtract the readings from 1.0 to reverse the relationship. 
 			 */
-			final String leftReading = Float.toString(leftInput.read())
-					.substring(2, 4);
-			final String rightReading = Float.toString(rightInput.read())
-					.substring(2, 4);
+			updateTime = clockFormat.format(new Date());
+			leftReading = Float.toString(1.0f-leftInput.read()).substring(2,4);
+			rightReading = Float.toString(1.0f-rightInput.read()).substring(2,4);
 			// the GPS service needs to be bound before these will work...
 			if (isGPSserviceBound) {
-				final String gpsTime = Long.toString(gpsService.getTime());
-				final String latitude =  gpsService.getLat();
-				final String longitude = gpsService.getLong();
-				final String speed =     gpsService.getSpeed();
-				write.data(System.currentTimeMillis() + "," + leftReading + ","
+				gpsTime = gpsService.getTime();
+				if (!gpsTime.equals(lastGPStime)) {
+					latitude  = gpsService.getLat();
+					longitude = gpsService.getLong();
+					speed     = gpsService.getSpeed();
+				}
+			}
+			// see if anything's changed
+			if (   !lastLeft.equals(leftReading) || !lastRight.equals(rightReading)
+				|| !lastLat.equals(latitude)     || !lastLong.equals(longitude)
+				|| !lastSpeed.equals(speed)      || !lastGPStime.equals(gpsTime)) {
+				// log the data
+				write.data(updateTime + "," + leftReading + ","
 						+ rightReading + "," + gpsTime + "," + latitude + ","
 						+ longitude + "," + speed);
-				setDisplayText(speed, speedValue);
-				// don't have GPS data, still write something
-			} else {
-				write.data(System.currentTimeMillis() + "," + leftReading + ","
-						+ rightReading + ",n/a,n/a,n/a,n/a");
+				// refresh the display
+				setDisplayText(clockView, updateTime);
+				setDisplayText(speedView, speed);
+				setDisplayText(leftHeightView, leftReading);
+				setDisplayText(rightHeightView, rightReading);
+				// and set the values for next time
+				lastLeft = leftReading;
+				lastRight = rightReading;
+				lastLat = latitude;
+				lastLong = longitude;
+				lastSpeed = speed;
+				lastGPStime = gpsTime;
 			}
-			setDisplayText(leftReading, leftHeightValue);
-			setDisplayText(rightReading, rightHeightValue);
 			Thread.sleep(300);
 		}
-
 		@Override
 		public void disconnected() {
 			enableUi(false);
 		}
 	}
 
-	
 	@Override
 	protected IOIOLooper createIOIOLooper() {
 		return new Looper();
 	}
 
 	private void initializeSettings() {
-		normalHeightLeft = settings.getFloat("LH_NORMAL", 0f);
-		maxHeightLeft = settings.getFloat("LH_MAX", 0f);
-		normalHeightRight = settings.getFloat("RH_NORMAL", 99f);
-		maxHeightRight = settings.getFloat("RH_MAX", 99f);
+		normalHeightLeft = settings.getString("LH_NORMAL", "0");
+		maxHeightLeft = settings.getString("LH_MAX", "99");
+		normalHeightRight = settings.getString("RH_NORMAL", "0");
+		maxHeightRight = settings.getString("RH_MAX", "99");
 		write.syslog("read settings from preferences");
-		write.syslog("LH NORM: " + normalHeightLeft + " LH MAX: " + maxHeightLeft +
-					 "RH NORM: " + normalHeightRight +" RH MAX: " + maxHeightRight);	
+		write.syslog("LH NORM: " + normalHeightLeft + 
+				" LH MAX: "  + maxHeightLeft + 
+				" RH NORM: " + normalHeightRight + 
+				" RH MAX: "  + maxHeightRight);
 	}
 
 	private void initializeGui() {
 		setContentView(R.layout.activity_main);
-		leftHeightValue = (TextView) findViewById(R.id.leftHeighDisplay);
-		rightHeightValue = (TextView) findViewById(R.id.rightHeightDisplay);
-		speedValue = (TextView) findViewById(R.id.SpeedDisplay);
+		clockView = (TextView) findViewById(R.id.clockView);
+		leftHeightView = (TextView) findViewById(R.id.leftHeighDisplay);
+		rightHeightView = (TextView) findViewById(R.id.rightHeightDisplay);
+		speedView = (TextView) findViewById(R.id.SpeedDisplay);
 		normalCalButton = (Button) findViewById(R.id.CalibrateNormalButton);
 		maxCalButton = (Button) findViewById(R.id.CalibrateMaxButton);
 		wakeLock.acquire();
@@ -169,7 +201,7 @@ public class MainActivity extends IOIOActivity {
 		});
 	}
 
-	private void setDisplayText(final String str, final TextView view) {
+	private void setDisplayText(final TextView view, final String str) {
 		runOnUiThread(new Runnable() {
 			@Override
 			public void run() {
@@ -180,22 +212,22 @@ public class MainActivity extends IOIOActivity {
 
 	public void calibrateNormal(View v) {
 		// get the latest service output
-		normalHeightLeft = 32.0f;
-		normalHeightRight = 33.0f;
-		settings.edit().putFloat("LH_NORMAL", normalHeightLeft);
-		settings.edit().putFloat("RH_NORMAL", normalHeightRight);
+		normalHeightLeft = lastLeft;
+		normalHeightRight = lastRight;
+		settings.edit().putString("LH_NORMAL", lastLeft);
+		settings.edit().putString("RH_NORMAL", lastRight);
 		settings.edit().commit();
-		write.syslog("calibrated normal");
+		write.syslog("calibrated normal: LH_NORM " + lastLeft + " RH_NORM " + lastRight);
 	}
 
 	public void calibrateMax(View v) {
 		// get the latest service output
-		maxHeightLeft = 98.0f;
-		maxHeightRight = 99.0f;
-		settings.edit().putFloat("LH_MAX", maxHeightLeft);
-		settings.edit().putFloat("RH_MAX", maxHeightRight);
+		maxHeightLeft  = lastLeft; 
+		maxHeightRight = lastRight;
+		settings.edit().putString("LH_MAX", lastLeft);
+		settings.edit().putString("RH_MAX", lastRight);
 		settings.edit().commit();
-		write.syslog("calibrated max");
+		write.syslog("calibrated max: LH_MAX " + lastLeft + " RH_MAX " + lastRight);
 	}
 
 	@Override
@@ -217,11 +249,12 @@ public class MainActivity extends IOIOActivity {
 		// stop GPS service
 		unbindService(gpsSvcConn);
 		stopService(new Intent(this, GPS_ListenerService.class));
+		// release wake lock
+		wakeLock.release();
 		// close log files... but write this first.
 		write.syslog("MainActivity stopped");
 		write.finalize();
-		// release wake lock
-		wakeLock.release();
+
 	}
 
 	@Override
@@ -230,26 +263,24 @@ public class MainActivity extends IOIOActivity {
 		getMenuInflater().inflate(R.menu.main, menu);
 		return true;
 	}
-    @Override
-    public boolean onOptionsItemSelected(MenuItem item) {
-        // Handle item selection
-        switch (item.getItemId()) {
-            case R.id.CalNormItem:
-                calibrateNormal(null);
-                return true;
-            case R.id.CalMaxItem:
-                calibrateMax(null);
-                return true;
-         //   case R.id.rollLogsItem:
-                // start new files somehow
-                    // write.rollLogs();
-         //       return true;
-            default:
-                return super.onOptionsItemSelected(item);
-        }
-    }
 
-
-
+	@Override
+	public boolean onOptionsItemSelected(MenuItem item) {
+		// Handle item selection
+		switch (item.getItemId()) {
+		case R.id.CalNormItem:
+			calibrateNormal(null);
+			return true;
+		case R.id.CalMaxItem:
+			calibrateMax(null);
+			return true;
+			// case R.id.rollLogsItem:
+			// start new files somehow
+			// write.rollLogs();
+			// return true;
+		default:
+			return super.onOptionsItemSelected(item);
+		}
+	}
 
 }

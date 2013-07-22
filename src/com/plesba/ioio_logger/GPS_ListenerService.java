@@ -1,5 +1,9 @@
 package com.plesba.ioio_logger;
 
+import java.text.SimpleDateFormat;
+import java.util.Date;
+
+import android.annotation.SuppressLint;
 import android.app.Service;
 import android.content.Context;
 import android.content.Intent;
@@ -22,13 +26,17 @@ public class GPS_ListenerService extends Service {
 	private double lastLatitude;
 	private double lastLongitude;
 	private float  lastSpeed;
+    @SuppressLint("SimpleDateFormat")
+	private SimpleDateFormat timeFormat = new SimpleDateFormat("HH:mm:ss.SSS");
     
-	public long   getTime() { return lastGPStime; }
+	public String getTime() { 
+		return timeFormat.format(new Date(lastGPStime)); }
 	public String getLat()  { 
 		return Double.toString(lastLatitude).substring(0,9); }     // latitude has max 2 digits before
 	public String getLong() { 
 		return Double.toString(lastLongitude).substring(0, 10); }  // longitude has up to 3 digits
-	public String getSpeed(){ return Float.toString(lastSpeed); }
+	public String getSpeed(){ 
+		return Float.toString(lastSpeed); }
 	
     // setup this service to allow binding for access to  public methods above.
 	// http://developer.android.com/guide/components/bound-services.html
