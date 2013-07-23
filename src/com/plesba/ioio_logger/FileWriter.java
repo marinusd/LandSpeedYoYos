@@ -24,14 +24,14 @@ public class FileWriter {
 	private SimpleDateFormat filenameFormat, logFormat;
 	// this class is intended to be a Singleton
 	private static FileWriter INSTANCE;
- 
+
 	public static FileWriter getInstance() {
 		if (INSTANCE == null) {
 			INSTANCE = new FileWriter();
 		}
 		return INSTANCE;
 	}
-		
+
 	@SuppressLint("SimpleDateFormat")
 	private FileWriter() {
 		// see if we can write to the "external storage" -- if
@@ -64,7 +64,7 @@ public class FileWriter {
 			dir.mkdirs();
 
 			// build the filename timestamp suffixes
-			filenameFormat = new SimpleDateFormat("_yyyy-MM-dd_HHmm"); 
+			filenameFormat = new SimpleDateFormat("_yyyy-MM-dd_HHmm");
 			// NO COLONS!! VERBOTTEN!!
 			String fileTS = filenameFormat.format(new Date());
 

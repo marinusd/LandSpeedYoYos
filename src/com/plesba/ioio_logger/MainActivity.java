@@ -84,16 +84,26 @@ public class MainActivity extends IOIOActivity {
 	}
 
 	// end of stuff to bind to GPS service
-	private String normalHeightLeft = "";	private String normalHeightRight ="";
-	private String maxHeightLeft = "";		private String maxHeightRight ="";
-    private String lastLeft = ""; 			private String lastRight = "";
+	private String normalHeightLeft = "";
+	private String normalHeightRight = "";
+	private String maxHeightLeft = "";
+	private String maxHeightRight = "";
+	private String lastLeft = "";
+	private String lastRight = "";
+
 	class Looper extends BaseIOIOLooper {
-		private AnalogInput leftInput;		private AnalogInput rightInput;
-		private String gpsTime = "";		private String lastGPStime = "";
-		private String latitude = "";		private String lastLat = "";
-		private String longitude = "";		private String lastLong = "";
-		private String speed = "";			private String lastSpeed = "";
-		private String leftReading = "";	private String rightReading = "";
+		private AnalogInput leftInput;
+		private AnalogInput rightInput;
+		private String gpsTime = "";
+		private String lastGPStime = "";
+		private String latitude = "";
+		private String lastLat = "";
+		private String longitude = "";
+		private String lastLong = "";
+		private String speed = "";
+		private String lastSpeed = "";
+		private String leftReading = "";
+		private String rightReading = "";
 		private String updateTime = "12:00:00";
 		@SuppressLint("SimpleDateFormat")
 		private SimpleDateFormat clockFormat = new SimpleDateFormat("HH:mm:ss");
@@ -115,37 +125,45 @@ public class MainActivity extends IOIOActivity {
 			 * sensors we have will never show 1.0, so 0.99xxx is the max and we
 			 * only need two digits of resolution So trim off the leading '0.'
 			 * of the string, and throw away digits past two example:
-			 * 0.234529684f => 23 (substring(2,4)   
-			 * AND! the ride height sensor readings go DOWN as the accordian units
-			 * are extended (and the readings go UP as the units are compressed.
-			 *  So we subtract the readings from 1.0 to reverse the relationship. 
+			 * 0.234529684f => 23 (substring(2,4) AND! the ride height sensor
+			 * readings go DOWN as the accordian units are extended (and the
+			 * readings go UP as the units are compressed. So we subtract the
+			 * readings from 1.0 to reverse the relationship.
 			 */
 			updateTime = clockFormat.format(new Date());
 			// leftSide sensor
-			String tStr = Float.toString(1.0f-leftInput.read());
-			if (tStr.length() < 4) { leftReading = tStr; }   // don't ask for indexOutOfBounds...
-			else { leftReading = tStr.substring(2,4); }
+			String tStr = Float.toString(1.0f - leftInput.read());
+			if (tStr.length() < 4) {
+				leftReading = tStr;
+			} // don't ask for indexOutOfBounds...
+			else {
+				leftReading = tStr.substring(2, 4);
+			}
 			// now right side sensor
-			tStr = Float.toString(1.0f-rightInput.read());
-			if (tStr.length() < 4) { rightReading = tStr; }
-			else { rightReading = tStr.substring(2,4); }
+			tStr = Float.toString(1.0f - rightInput.read());
+			if (tStr.length() < 4) {
+				rightReading = tStr;
+			} else {
+				rightReading = tStr.substring(2, 4);
+			}
 			// the GPS service needs to be bound before these will work...
 			if (isGPSserviceBound) {
 				gpsTime = gpsService.getTime();
 				if (!gpsTime.equals(lastGPStime)) {
-					latitude  = gpsService.getLat();
+					latitude = gpsService.getLat();
 					longitude = gpsService.getLong();
-					speed     = gpsService.getSpeed();
+					speed = gpsService.getSpeed();
 				}
 			}
 			// see if anything's changed
-			if (   !lastLeft.equals(leftReading) || !lastRight.equals(rightReading)
-				|| !lastLat.equals(latitude)     || !lastLong.equals(longitude)
-				|| !lastSpeed.equals(speed)      || !lastGPStime.equals(gpsTime)) {
+			if (!lastLeft.equals(leftReading)
+					|| !lastRight.equals(rightReading)
+					|| !lastLat.equals(latitude) || !lastLong.equals(longitude)
+					|| !lastSpeed.equals(speed) || !lastGPStime.equals(gpsTime)) {
 				// log the data
-				write.data(updateTime + "," + leftReading + ","
-						+ rightReading + "," + gpsTime + "," + latitude + ","
-						+ longitude + "," + speed);
+				write.data(updateTime + "," + leftReading + "," + rightReading
+						+ "," + gpsTime + "," + latitude + "," + longitude
+						+ "," + speed);
 				// refresh the display
 				setDisplayText(clockView, updateTime);
 				setDisplayText(speedView, speed);
@@ -161,6 +179,7 @@ public class MainActivity extends IOIOActivity {
 			}
 			Thread.sleep(300);
 		}
+
 		@Override
 		public void disconnected() {
 			enableUi(false);
@@ -178,10 +197,9 @@ public class MainActivity extends IOIOActivity {
 		normalHeightRight = settings.getString("RH_NORMAL", "0");
 		maxHeightRight = settings.getString("RH_MAX", "99");
 		write.syslog("read settings from preferences");
-		write.syslog("LH NORM: " + normalHeightLeft + 
-				" LH MAX: "  + maxHeightLeft + 
-				" RH NORM: " + normalHeightRight + 
-				" RH MAX: "  + maxHeightRight);
+		write.syslog("LH NORM: " + normalHeightLeft + " LH MAX: "
+				+ maxHeightLeft + " RH NORM: " + normalHeightRight
+				+ " RH MAX: " + maxHeightRight);
 	}
 
 	private void initializeGui() {
@@ -223,17 +241,19 @@ public class MainActivity extends IOIOActivity {
 		settings.edit().putString("LH_NORMAL", lastLeft);
 		settings.edit().putString("RH_NORMAL", lastRight);
 		settings.edit().commit();
-		write.syslog("calibrated normal: LH_NORM " + lastLeft + " RH_NORM " + lastRight);
+		write.syslog("calibrated normal: LH_NORM " + lastLeft + " RH_NORM "
+				+ lastRight);
 	}
 
 	public void calibrateMax(View v) {
 		// get the latest service output
-		maxHeightLeft  = lastLeft; 
+		maxHeightLeft = lastLeft;
 		maxHeightRight = lastRight;
 		settings.edit().putString("LH_MAX", lastLeft);
 		settings.edit().putString("RH_MAX", lastRight);
 		settings.edit().commit();
-		write.syslog("calibrated max: LH_MAX " + lastLeft + " RH_MAX " + lastRight);
+		write.syslog("calibrated max: LH_MAX " + lastLeft + " RH_MAX "
+				+ lastRight);
 	}
 
 	@Override
