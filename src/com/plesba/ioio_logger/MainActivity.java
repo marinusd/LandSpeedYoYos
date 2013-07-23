@@ -18,6 +18,7 @@ import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.os.IBinder;
 import android.os.PowerManager;
+import android.preference.PreferenceManager;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
@@ -192,8 +193,7 @@ public class MainActivity extends IOIOActivity {
 	}
 
 	private void initializeSettings() {
-		settings = getPreferences(MODE_PRIVATE);
-		editor = settings.edit();
+		settings = PreferenceManager.getDefaultSharedPreferences(this);;
 		normalHeightLeft = settings.getString("LH_NORMAL", "0");
 		maxHeightLeft = settings.getString("LH_MAX", "99");
 		normalHeightRight = settings.getString("RH_NORMAL", "0");
@@ -240,6 +240,7 @@ public class MainActivity extends IOIOActivity {
 		// get the latest service output
 		normalHeightLeft = lastLeft;
 		normalHeightRight = lastRight;
+		editor = settings.edit();
 		editor.putString("LH_NORMAL", lastLeft);
 		editor.putString("RH_NORMAL", lastRight);
 		editor.commit();
@@ -251,6 +252,7 @@ public class MainActivity extends IOIOActivity {
 		// get the latest service output
 		maxHeightLeft = lastLeft;
 		maxHeightRight = lastRight;
+		editor = settings.edit();
 		editor.putString("LH_MAX", lastLeft);
 		editor.putString("RH_MAX", lastRight);
 		editor.commit();
