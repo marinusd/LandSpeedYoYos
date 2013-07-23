@@ -96,16 +96,8 @@ public class GPS_ListenerService extends Service {
 		criteria.setSpeedAccuracy(Criteria.ACCURACY_FINE);
 		// register the listener
 		locationManager.requestLocationUpdates(
-				locationManager.getBestProvider(criteria, false), 100, // minimum
-																		// time
-																		// interval
-																		// between
-																		// location
-																		// updates,
-																		// in
-																		// milliseconds
-				3, // minimum distance between location updates, in meters
-				gpsLocationListener);
+				locationManager.getBestProvider(criteria, false), 250, 
+				5, gpsLocationListener);
 		write.syslog(TAG + " GPS updates requested.");
 	}
 

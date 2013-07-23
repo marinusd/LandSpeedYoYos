@@ -28,6 +28,7 @@ import com.plesba.ioio_logger.GPS_ListenerService.GPSBinder;
 
 public class MainActivity extends IOIOActivity {
 	private SharedPreferences settings;
+	private SharedPreferences.Editor editor;
 	private TextView clockView;
 	private TextView leftHeightView;
 	private TextView rightHeightView;
@@ -44,7 +45,6 @@ public class MainActivity extends IOIOActivity {
 	public void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		write = FileWriter.getInstance();
-		settings = getPreferences(MODE_PRIVATE);
 		initializeSettings();
 		startGPSService();
 		PowerManager pm = (PowerManager) getSystemService(Context.POWER_SERVICE);
@@ -192,6 +192,8 @@ public class MainActivity extends IOIOActivity {
 	}
 
 	private void initializeSettings() {
+		settings = getPreferences(MODE_PRIVATE);
+		editor = settings.edit();
 		normalHeightLeft = settings.getString("LH_NORMAL", "0");
 		maxHeightLeft = settings.getString("LH_MAX", "99");
 		normalHeightRight = settings.getString("RH_NORMAL", "0");
@@ -238,9 +240,9 @@ public class MainActivity extends IOIOActivity {
 		// get the latest service output
 		normalHeightLeft = lastLeft;
 		normalHeightRight = lastRight;
-		settings.edit().putString("LH_NORMAL", lastLeft);
-		settings.edit().putString("RH_NORMAL", lastRight);
-		settings.edit().commit();
+		editor.putString("LH_NORMAL", lastLeft);
+		editor.putString("RH_NORMAL", lastRight);
+		editor.commit();
 		write.syslog("calibrated normal: LH_NORM " + lastLeft + " RH_NORM "
 				+ lastRight);
 	}
@@ -249,9 +251,9 @@ public class MainActivity extends IOIOActivity {
 		// get the latest service output
 		maxHeightLeft = lastLeft;
 		maxHeightRight = lastRight;
-		settings.edit().putString("LH_MAX", lastLeft);
-		settings.edit().putString("RH_MAX", lastRight);
-		settings.edit().commit();
+		editor.putString("LH_MAX", lastLeft);
+		editor.putString("RH_MAX", lastRight);
+		editor.commit();
 		write.syslog("calibrated max: LH_MAX " + lastLeft + " RH_MAX "
 				+ lastRight);
 	}
