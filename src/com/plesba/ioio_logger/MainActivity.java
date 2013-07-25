@@ -22,7 +22,6 @@ import android.preference.PreferenceManager;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
-import android.widget.Button;
 import android.widget.TextView;
 
 import com.plesba.ioio_logger.GPS_ListenerService.GPSBinder;
@@ -34,8 +33,6 @@ public class MainActivity extends IOIOActivity {
 	private TextView leftHeightView;
 	private TextView rightHeightView;
 	private TextView speedView;
-	private Button maxCalButton;
-	private Button normalCalButton;
 	private FileWriter write;
 	private PowerManager.WakeLock wakeLock;
 	private ServiceConnection gpsSvcConn;
@@ -113,7 +110,6 @@ public class MainActivity extends IOIOActivity {
 		public void setup() throws ConnectionLostException {
 			leftInput = ioio_.openAnalogInput(44);
 			rightInput = ioio_.openAnalogInput(42);
-			enableUi(true);
 			write.syslog("Looper setup complete");
 		}
 
@@ -181,10 +177,6 @@ public class MainActivity extends IOIOActivity {
 			Thread.sleep(300);
 		}
 
-		@Override
-		public void disconnected() {
-			enableUi(false);
-		}
 	}
 
 	@Override
@@ -210,21 +202,8 @@ public class MainActivity extends IOIOActivity {
 		leftHeightView = (TextView) findViewById(R.id.leftHeighDisplay);
 		rightHeightView = (TextView) findViewById(R.id.rightHeightDisplay);
 		speedView = (TextView) findViewById(R.id.SpeedDisplay);
-		normalCalButton = (Button) findViewById(R.id.CalibrateNormalButton);
-		maxCalButton = (Button) findViewById(R.id.CalibrateMaxButton);
 		wakeLock.acquire();
-		enableUi(true);
 		write.syslog("gui initialized");
-	}
-
-	private void enableUi(final boolean enable) {
-		runOnUiThread(new Runnable() {
-			@Override
-			public void run() {
-				normalCalButton.setEnabled(enable);
-				maxCalButton.setEnabled(enable);
-			}
-		});
 	}
 
 	private void setDisplayText(final TextView view, final String str) {
