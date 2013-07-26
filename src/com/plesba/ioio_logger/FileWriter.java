@@ -13,7 +13,7 @@ import android.util.Log;
  * the files, or have a FileManager app installed on the phone. 
  */
 public class FileWriter {
-	private String TAG = "pickleData";
+	private String TAG = "pickledata";
 	private final int TEMP_MAX = 5; // batch writes into this size
 	private File dir; 
 	private File syslogFile, dataFile;
