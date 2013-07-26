@@ -283,10 +283,14 @@ public class MainActivity extends IOIOActivity {
 		case R.id.CalMaxItem:
 			calibrateMax(null);
 			return true;
-			// case R.id.rollLogsItem:
+		case R.id.rollFilesItem:
 			// start new files somehow
-			// write.rollLogs();
-			// return true;
+			write.rollFiles();
+			write.syslog("LH NORM: " + normalHeightLeft + " LH MAX: "
+					+ maxHeightLeft + " RH NORM: " + normalHeightRight
+					+ " RH MAX: " + maxHeightRight);
+			write.data("SYSTIME,LH,RH,GPSTIME,LAT,LONG,SPEED");
+			return true;
 		default:
 			return super.onOptionsItemSelected(item);
 		}

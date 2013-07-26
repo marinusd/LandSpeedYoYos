@@ -13,8 +13,9 @@ import android.util.Log;
  * the files, or have a FileManager app installed on the phone. 
  */
 public class FileWriter {
-	private String TAG = "pickleWriter";
+	private String TAG = "pickleData";
 	private final int TEMP_MAX = 5; // batch writes into this size
+	private File dir; 
 	private File syslogFile, dataFile;
 	private int syslogTmpCt = 0;
 	private int dataTmpCt = 0;
@@ -56,26 +57,37 @@ public class FileWriter {
 			logFormat = new SimpleDateFormat("HH:mm:ss.SSS");
 
 			// set up the directory where we'll write
-			String packageName = "pickledata"; // or
-												// getCLass().getPackage().getName().substring...
-												// blah
 			File sdCard = Environment.getExternalStorageDirectory();
-			File dir = new File(sdCard.getAbsolutePath() + "/" + packageName);
+			dir = new File(sdCard.getAbsolutePath() + "/" + TAG);
 			dir.mkdirs();
 
 			// build the filename timestamp suffixes
 			filenameFormat = new SimpleDateFormat("_yyyy-MM-dd_HHmm");
 			// NO COLONS!! VERBOTTEN!!
-			String fileTS = filenameFormat.format(new Date());
-
-			// create the files
-			syslogFile = new File(dir, "syslog" + fileTS + ".txt");
-			dataFile = new File(dir, "Data" + fileTS + ".txt");
+            rollFiles();
 		} catch (Exception e) {
 			Log.i(TAG, "SHIT: " + e.getMessage());
 		}
 	}
 
+	public void rollFiles() {
+		if (syslogFile != null) {
+			this.writeToSyslogFile();
+			Log.i(TAG, "rolling files; old syslog file closed out");
+		}
+		if (dataFile != null) { 
+			this.writeToDataFile();
+			Log.i(TAG, "rolling files; old data file closed out");
+		}
+
+		// NO COLONS!! VERBOTTEN!!
+		String fileTS = filenameFormat.format(new Date());
+		// create the files
+		syslogFile = new File(dir, "syslog" + fileTS + ".txt");
+		dataFile = new File(dir, "Data" + fileTS + ".txt");
+		Log.i(TAG, "new files in place at " + fileTS);
+	}
+	
 	// we add a timestamp to each syslog entry
 	// & we batch up the entries before we write
 	public void syslog(String s) {
