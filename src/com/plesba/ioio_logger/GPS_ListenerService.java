@@ -59,6 +59,7 @@ public class GPS_ListenerService extends Service {
 	// speed needs three digits, and maybe three more past the decimal point:
 	// 145.608
 	public String getSpeed() {
+		if (lastSpeed < 1.0f) { return "0.0"; }
 		String lValue = Float.toString(lastSpeed * metersSec_in_MPH);
 		if (lValue.length() < 7) {
 			return lValue;
