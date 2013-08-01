@@ -62,7 +62,7 @@ public class FileWriter {
 			dir.mkdirs();
 
 			// build the filename timestamp suffixes
-			filenameFormat = new SimpleDateFormat("_yyyy-MM-dd_HHmm");
+			filenameFormat = new SimpleDateFormat("_yyyy-MM-dd_HHmmss");
 			// NO COLONS!! VERBOTTEN!!
             rollFiles();
 		} catch (Exception e) {
