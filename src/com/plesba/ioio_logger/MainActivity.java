@@ -153,10 +153,11 @@ public class MainActivity extends IOIOActivity {
 				}
 			}
 			// see if anything's changed
-			if (!lastLeft.equals(leftReading)
-					|| !lastRight.equals(rightReading)
-					|| !lastLat.equals(latitude) || !lastLong.equals(longitude)
-					|| !lastSpeed.equals(speed) || !lastGPStime.equals(gpsTime)) {
+			if (!lastLeft.equals(leftReading) || 
+				!lastRight.equals(rightReading) || 
+				!lastLat.equals(latitude) || 
+				!lastLong.equals(longitude) || 
+				!lastSpeed.equals(speed) ) {
 				// log the data
 				write.data(updateTime + "," + leftReading + "," + rightReading
 						+ "," + gpsTime + "," + latitude + "," + longitude
