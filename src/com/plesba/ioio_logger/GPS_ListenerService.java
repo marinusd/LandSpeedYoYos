@@ -27,6 +27,7 @@ public class GPS_ListenerService extends Service {
 	private double lastLatitude;
 	private double lastLongitude;
 	private float lastSpeed;
+	private float maxSpeed;
 	private final float metersSec_in_MPH = 2.23694f;
 	@SuppressLint("SimpleDateFormat")
 	private SimpleDateFormat timeFormat = new SimpleDateFormat("HH:mm:ss.SSS");
@@ -67,6 +68,15 @@ public class GPS_ListenerService extends Service {
 			return lValue.substring(0, 7);
 	}
 
+	public String getMaxSpeed() {
+		if (maxSpeed < 1.0f) { return "0.0"; }
+		String lValue = Float.toString(maxSpeed * metersSec_in_MPH);
+		if (lValue.length() < 7) {
+			return lValue;
+		} else
+			return lValue.substring(0, 7);
+	}
+	
 	// setup this service to allow binding for access to public methods above.
 	// http://developer.android.com/guide/components/bound-services.html
 	private final IBinder mBinder = new GPSBinder();
@@ -138,6 +148,9 @@ public class GPS_ListenerService extends Service {
 			lastLatitude = location.getLatitude();
 			lastLongitude = location.getLongitude();
 			lastSpeed = location.getSpeed();
+			if (lastSpeed > maxSpeed) {
+				maxSpeed = lastSpeed;
+			}
 			// Log.i(TAG, "GPS update received.");
 		}
 
@@ -170,6 +183,10 @@ public class GPS_ListenerService extends Service {
 			write.syslog(TAG + " GPS provider disabled?");
 		}
 
+	}
+
+	public void zeroMaxSpeed() {
+		maxSpeed = 0.0f;
 	}
 
 }

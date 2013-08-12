@@ -33,6 +33,7 @@ public class MainActivity extends IOIOActivity {
 	private TextView leftHeightView;
 	private TextView rightHeightView;
 	private TextView speedView;
+	private TextView maxSpeedView;
 	private FileWriter write;
 	private PowerManager.WakeLock wakeLock;
 	private ServiceConnection gpsSvcConn;
@@ -89,6 +90,7 @@ public class MainActivity extends IOIOActivity {
 	private String lastLeft = "";
 	private String lastRight = "";
 
+
 	class Looper extends BaseIOIOLooper {
 		private AnalogInput leftInput;
 		private AnalogInput rightInput;
@@ -100,6 +102,8 @@ public class MainActivity extends IOIOActivity {
 		private String lastLong = "";
 		private String speed = "";
 		private String lastSpeed = "";
+		private String maxSpeed = "";
+		private String lastMaxSpeed = "";
 		private String leftReading = "";
 		private String rightReading = "";
 		private String updateTime = "12:00:00";
@@ -150,6 +154,7 @@ public class MainActivity extends IOIOActivity {
 					latitude = gpsService.getLat();
 					longitude = gpsService.getLong();
 					speed = gpsService.getSpeed();
+					maxSpeed = gpsService.getMaxSpeed();
 				}
 			}
 			// see if anything's changed
@@ -157,7 +162,8 @@ public class MainActivity extends IOIOActivity {
 				!lastRight.equals(rightReading) || 
 				!lastLat.equals(latitude) || 
 				!lastLong.equals(longitude) || 
-				!lastSpeed.equals(speed) ) {
+				!lastSpeed.equals(speed) )  {  //|| don't really care if this changes
+				//!lastMaxSpeed.equals(maxSpeed)) {
 				// log the data
 				write.data(updateTime + "," + leftReading + "," + rightReading
 						+ "," + gpsTime + "," + latitude + "," + longitude
@@ -173,6 +179,7 @@ public class MainActivity extends IOIOActivity {
 				lastLat = latitude;
 				lastLong = longitude;
 				lastSpeed = speed;
+				lastMaxSpeed = maxSpeed;
 				lastGPStime = gpsTime;
 			}
 			Thread.sleep(300);
@@ -203,6 +210,7 @@ public class MainActivity extends IOIOActivity {
 		leftHeightView = (TextView) findViewById(R.id.leftHeighDisplay);
 		rightHeightView = (TextView) findViewById(R.id.rightHeightDisplay);
 		speedView = (TextView) findViewById(R.id.SpeedDisplay);
+		maxSpeedView = (TextView) findViewById(R.id.maxSpeedDisplay);
 		wakeLock.acquire();
 		write.syslog("gui initialized");
 	}
@@ -287,6 +295,7 @@ public class MainActivity extends IOIOActivity {
 		case R.id.rollFilesItem:
 			// start new files somehow
 			write.rollFiles();
+			gpsService.zeroMaxSpeed();
 			write.syslog("LH NORM: " + normalHeightLeft + " LH MAX: "
 					+ maxHeightLeft + " RH NORM: " + normalHeightRight
 					+ " RH MAX: " + maxHeightRight);
