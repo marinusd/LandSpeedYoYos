@@ -87,9 +87,10 @@ public class MainActivity extends IOIOActivity {
 	private String normalHeightRight = "";
 	private String maxHeightLeft = "";
 	private String maxHeightRight = "";
-	private String lastLeft = "";
-	private String lastRight = "";
-
+	private String ultimateLeft = "";
+	private String ultimateRight = "";
+	private String penultimateLeft = "";
+	private String penultimateRight = "";
 
 	class Looper extends BaseIOIOLooper {
 		private AnalogInput leftInput;
@@ -103,7 +104,7 @@ public class MainActivity extends IOIOActivity {
 		private String speed = "";
 		private String lastSpeed = "";
 		private String maxSpeed = "";
-		private String lastMaxSpeed = "";
+		//private String lastMaxSpeed = "";
 		private String leftReading = "";
 		private String rightReading = "";
 		private String updateTime = "12:00:00";
@@ -158,12 +159,14 @@ public class MainActivity extends IOIOActivity {
 				}
 			}
 			// see if anything's changed
-			if (!lastLeft.equals(leftReading) || 
-				!lastRight.equals(rightReading) || 
+			//   check the last TWO sensor readings to ignore flutter
+			if ((!ultimateLeft.equals(leftReading) && !penultimateLeft.equals(leftReading)) || 
+				(!ultimateRight.equals(rightReading) && !penultimateRight.equals(rightReading))|| 
 				!lastLat.equals(latitude) || 
 				!lastLong.equals(longitude) || 
-				!lastSpeed.equals(speed) )  {  //|| don't really care if this changes
-				//!lastMaxSpeed.equals(maxSpeed)) {
+				// don't really care if this changes; speed would have had to change
+				//!lastMaxSpeed.equals(maxSpeed)) ||
+				!lastSpeed.equals(speed) )  {  
 				// log the data
 				write.data(updateTime + "," + leftReading + "," + rightReading
 						+ "," + gpsTime + "," + latitude + "," + longitude
@@ -171,15 +174,19 @@ public class MainActivity extends IOIOActivity {
 				// refresh the display
 				setDisplayText(clockView, updateTime);
 				setDisplayText(speedView, speed);
+				setDisplayText(maxSpeedView, maxSpeed);
 				setDisplayText(leftHeightView, leftReading);
 				setDisplayText(rightHeightView, rightReading);
 				// and set the values for next time
-				lastLeft = leftReading;
-				lastRight = rightReading;
+				//  shift the sensor readings down by one place
+				penultimateLeft = ultimateLeft;
+				penultimateRight = ultimateRight;
+				ultimateLeft = leftReading;
+				ultimateRight = rightReading;
 				lastLat = latitude;
 				lastLong = longitude;
 				lastSpeed = speed;
-				lastMaxSpeed = maxSpeed;
+				//lastMaxSpeed = maxSpeed;
 				lastGPStime = gpsTime;
 			}
 			Thread.sleep(300);
@@ -226,26 +233,26 @@ public class MainActivity extends IOIOActivity {
 
 	public void calibrateNormal(View v) {
 		// get the latest service output
-		normalHeightLeft = lastLeft;
-		normalHeightRight = lastRight;
+		normalHeightLeft =  ultimateLeft;
+		normalHeightRight = ultimateRight;
 		editor = settings.edit();
-		editor.putString("LH_NORMAL", lastLeft);
-		editor.putString("RH_NORMAL", lastRight);
+		editor.putString("LH_NORMAL", ultimateLeft);
+		editor.putString("RH_NORMAL", ultimateRight);
 		editor.commit();
-		write.syslog("calibrated normal: LH_NORM " + lastLeft + " RH_NORM "
-				+ lastRight);
+		write.syslog("calibrated normal: LH_NORM " + ultimateLeft + " RH_NORM "
+				+ ultimateRight);
 	}
 
 	public void calibrateMax(View v) {
 		// get the latest service output
-		maxHeightLeft = lastLeft;
-		maxHeightRight = lastRight;
+		maxHeightLeft = ultimateLeft;
+		maxHeightRight = ultimateRight;
 		editor = settings.edit();
-		editor.putString("LH_MAX", lastLeft);
-		editor.putString("RH_MAX", lastRight);
+		editor.putString("LH_MAX", ultimateLeft);
+		editor.putString("RH_MAX", ultimateRight);
 		editor.commit();
-		write.syslog("calibrated max: LH_MAX " + lastLeft + " RH_MAX "
-				+ lastRight);
+		write.syslog("calibrated max: LH_MAX " + ultimateLeft + " RH_MAX "
+				+ ultimateRight);
 	}
 
 	@Override
