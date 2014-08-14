@@ -28,7 +28,10 @@ public class GPS_ListenerService extends Service {
 	private double lastLongitude;
 	private float lastSpeed;
 	private float maxSpeed;
+	private double startLatitude;
+	private double startLongitude;
 	private final float metersSec_in_MPH = 2.23694f;
+	private final double miles_per_meter = 0.00062137119d;
 	@SuppressLint("SimpleDateFormat")
 	private SimpleDateFormat timeFormat = new SimpleDateFormat("HH:mm:ss.SSS");
 
@@ -77,6 +80,20 @@ public class GPS_ListenerService extends Service {
 			return lValue.substring(0, 7);
 	}
 	
+	public void setStartingPosition() {
+		startLatitude  = lastLatitude;
+		startLongitude = lastLongitude;
+		write.syslog(TAG + " Starting position set.");
+	}
+	
+	public String getMilesFromStart() {
+		float [] results = new float [2];
+		Location.distanceBetween (startLatitude, startLongitude, lastLatitude, lastLongitude, results);
+		float meters = results[0];
+		String miles = Double.toString(meters*miles_per_meter) + "000"; // insurance: we'll have enough post-.
+		return miles.substring(0, miles.indexOf(".") + 4); // send back three decimals. (might be .000)
+	}
+
 	// setup this service to allow binding for access to public methods above.
 	// http://developer.android.com/guide/components/bound-services.html
 	private final IBinder mBinder = new GPSBinder();

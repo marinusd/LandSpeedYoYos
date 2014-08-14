@@ -7,5 +7,6 @@
     <item android:id="@+id/CalNormItem" android:title="@string/calibrate_normal_label" android:titleCondensed="@string/cal_norm_con_label" android:enabled="true" android:visible="true"></item>
     <item android:id="@+id/CalMaxItem" android:title="@string/calibrate_max_label" android:titleCondensed="@string/cal_max_con_label" android:enabled="true" android:visible="true"></item>
     <item android:id="@+id/rollFilesItem" android:titleCondensed="Roll Files" android:title="Roll Files"></item>
+    <item android:id="@+id/setStartPosItem" android:titleCondensed="StartPos" android:title="Set Starting Position"></item>
 
 </menu>
