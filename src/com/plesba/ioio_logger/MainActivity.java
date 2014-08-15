@@ -57,7 +57,7 @@ public class MainActivity extends IOIOActivity {
 				"android-ioio");
 		initializeGui(); // this method actually acquires the wakelock
 		// start out the Data file
-		write.data("SYSTIME,LH,RH,GPSTIME,LAT,LONG,SPEED");
+		write.data("SYSTIME,LH,RH,GPSTIME,LAT,LONG,DIST,SPEED");
 	}
 
 	// start of stuff to bind to GPS service so we can get values
@@ -106,6 +106,7 @@ public class MainActivity extends IOIOActivity {
 		private String speed = "";
 		private String lastSpeed = "";
 		private String maxSpeed = "";
+		private String distFromStart = "";
 		//private String lastMaxSpeed = "";
 		private String leftReading = "";
 		private String rightReading = "";
@@ -155,6 +156,7 @@ public class MainActivity extends IOIOActivity {
 					longitude = gpsService.getLong();
 					speed = gpsService.getSpeed();
 					maxSpeed = gpsService.getMaxSpeed();
+					distFromStart = gpsService.getMilesFromStart();
 				}
 			}
 			// see if anything's changed
@@ -169,7 +171,7 @@ public class MainActivity extends IOIOActivity {
 				// log the data
 				write.data(updateTime + "," + leftReading + "," + rightReading
 						+ "," + gpsTime + "," + latitude + "," + longitude
-						+ "," + speed);
+						+ "," + distFromStart + "," + speed);
 				// refresh the display
 				setDisplayText(clockView, updateTime);
 				setDisplayText(speedView, speed);
