@@ -1,6 +1,7 @@
 package com.plesba.ioio_logger;
 
 import ioio.lib.api.AnalogInput;
+import ioio.lib.api.DigitalInput;
 import ioio.lib.api.exception.ConnectionLostException;
 import ioio.lib.util.BaseIOIOLooper;
 import ioio.lib.util.IOIOLooper;
@@ -95,6 +96,7 @@ public class MainActivity extends IOIOActivity {
 	class Looper extends BaseIOIOLooper {
 		private AnalogInput leftInput;
 		private AnalogInput rightInput;
+		private DigitalInput zeroButton;
 		private String gpsTime = "";
 		private String lastGPStime = "";
 		private String latitude = "";
@@ -115,11 +117,18 @@ public class MainActivity extends IOIOActivity {
 		public void setup() throws ConnectionLostException {
 			leftInput = ioio_.openAnalogInput(44);
 			rightInput = ioio_.openAnalogInput(42);
+			zeroButton = ioio_.openDigitalInput(34, DigitalInput.Spec.Mode.PULL_UP);
 			write.syslog("Looper setup complete");
 		}
 
 		@Override
 		public void loop() throws ConnectionLostException, InterruptedException {
+			updateTime = clockFormat.format(new Date());
+			// imagine a pushbutton switching pin 34 to GRND.
+			if (zeroButton.read()) {
+				gpsService.setStartingPosition();
+				FileWriter.getInstance().rollFiles();
+			}
 			/*
 			 * turn the ride height sensor readings into strings. The IOIO
 			 * read() on an analog input returns a floats in the 0.0-1.0 range
@@ -128,26 +137,16 @@ public class MainActivity extends IOIOActivity {
 			 * only need two digits of resolution So trim off the leading '0.'
 			 * of the string, and throw away digits past two example:
 			 * 0.234529684f => 23 (substring(2,4) AND! the ride height sensor
-			 * readings go DOWN as the accordian units are extended (and the
+			 * readings go DOWN as the accordion units are extended (and the
 			 * readings go UP as the units are compressed. So we subtract the
 			 * readings from 1.0 to reverse the relationship.
 			 */
-			updateTime = clockFormat.format(new Date());
-			// leftSide sensor
-			String tStr = Float.toString(1.0f - leftInput.read());
-			if (tStr.length() < 4) {
-				leftReading = tStr;
-			} // don't ask for indexOutOfBounds...
-			else {
-				leftReading = tStr.substring(2, 4);
-			}
+			// leftSide sensor. Make sure the string is long enough to index[4]
+			String tStr = Float.toString(1.0f - leftInput.read()) + "000";
+			leftReading = tStr.substring(2, 4);
 			// now right side sensor
-			tStr = Float.toString(1.0f - rightInput.read());
-			if (tStr.length() < 4) {
-				rightReading = tStr;
-			} else {
-				rightReading = tStr.substring(2, 4);
-			}
+			tStr = Float.toString(1.0f - rightInput.read()) + "000";
+			rightReading = tStr.substring(2, 4);
 			// the GPS service needs to be bound before these will work...
 			if (isGPSserviceBound) {
 				gpsTime = gpsService.getTime();
