@@ -131,13 +131,15 @@ public class MainActivity extends IOIOActivity {
 				FileWriter.getInstance().rollFiles();
 			}
 			/*
-			 * turn the ride height sensor readings into strings. The IOIO
-			 * read() on an analog input returns a floats in the 0.0-1.0 range
-			 * The measurement values have lots of trailing digits But the
-			 * sensors we have will never show 1.0, so 0.99xxx is the max and we
-			 * only need two digits of resolution So trim off the leading '0.'
-			 * of the string, and throw away digits past two example:
-			 * 0.234529684f => 23 (substring(2,4) AND! the ride height sensor
+			 * Turn the ride height sensor readings into strings. 
+			 * The IOIO read() on an analog input returns a float in the 0.0-1.0 range
+			 * The measurement values have lots of trailing digits - but the
+			 * sensors we have will never show 1.0, so 0.99xxx is the max. We
+			 * only need two digits of resolution, so trim off the leading '0.'
+			 * of the string, and throw away digits past two.
+			 *  example:
+			 * 0.234529684f => 23 (substring(2,4) 
+			 * AND! the ride height sensor
 			 * readings go DOWN as the accordion units are extended (and the
 			 * readings go UP as the units are compressed. So we subtract the
 			 * readings from 1.0 to reverse the relationship.
