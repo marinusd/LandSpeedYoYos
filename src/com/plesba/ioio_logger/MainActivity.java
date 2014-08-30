@@ -309,6 +309,9 @@ public class MainActivity extends IOIOActivity {
 					+ " RH MAX: " + maxHeightRight);
 			write.data("SYSTIME,LH,RH,GPSTIME,LAT,LONG,SPEED");
 			return true;
+		case R.id.setStartPosItem:
+			gpsService.setStartingPosition();
+			return true;
 		default:
 			return super.onOptionsItemSelected(item);
 		}
